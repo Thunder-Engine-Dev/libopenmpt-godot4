@@ -1,5 +1,4 @@
 godot-headers/
-godot-cpp/
 **/bin/
 **/.clangd/
 **/.sconsign.dblite
