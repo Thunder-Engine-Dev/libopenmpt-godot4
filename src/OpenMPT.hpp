@@ -153,12 +153,13 @@ public:
 
 	private:
 
-	void load_module_data();
+	void load_module_data(godot::PackedByteArray bytes);
 
 	bool is_module_loaded() {
 		return module != nullptr;
 	}
 
+	/*
 	void set_module_file_path(godot::String path) {
 		module_file_path = path;
 		load_module_data();
@@ -171,6 +172,7 @@ public:
 	godot::String get_module_file_path() {
 		return module_file_path;
 	}
+	*/
 
 	godot::String get_cell(int pattern, int row, int channel);
 	godot::String get_current_cell(int channel);
@@ -208,6 +210,21 @@ public:
 	void set_position_seconds(double seconds) {
 		MOD_NULL_CHECK_VOID;
 		module->set_position_seconds(seconds);
+	}
+  
+	void set_render_interpolation(int index) {
+		MOD_NULL_CHECK_VOID;
+		module->set_render_param(openmpt::module::render_param::RENDER_INTERPOLATIONFILTER_LENGTH, index);
+	}
+
+	void select_subsong(std::int32_t subsong)	{
+		MOD_NULL_CHECK_VOID;
+		int64_t subsong_count = get_num_subsongs();
+		if (subsong_count < subsong || subsong < -1) {
+			PRINT_ERROR("select_subsong: Invalid subsong provided, total number of subsongs: " + subsong_count);
+			return;
+		}
+		module->select_subsong(subsong);
 	}
 
 	double get_current_estimated_bpm() {
@@ -407,6 +424,12 @@ public:
 		sample_rate = stream->get_mix_rate();
 
 		stream->unreference();
+	}
+
+	void clear_buffer() {
+		if (audgen.is_valid() && !continue_fill_thread) {
+			audgen->call_deferred("clear_buffer");
+		}
 	}
 
 	void _fill_thread_func() {
