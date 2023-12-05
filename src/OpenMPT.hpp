@@ -5,7 +5,7 @@
 // lead to annoying situations due to the ton of macros it defines.
 // So we include it and make sure CI warns us if we use something that conflicts
 // with a Windows define.
-#include "memory.hpp"
+#include "../../godot-cpp/include/godot_cpp/core/memory.hpp"
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -30,9 +30,10 @@
 #include <packed_byte_array.hpp>
 #include <packed_vector2_array.hpp>
 
-#include <bits/stdint-intn.h>
-#include <bits/types/__FILE.h>
-#include <libopenmpt/libopenmpt.hpp>
+//#include <bits/stdint-intn.h>
+//#include <bits/types/__FILE.h>
+#include <../../deps/libopenmpt/inc/libopenmpt/libopenmpt.hpp>
+#include <thread>
 #include <string>
 #include <vector>
 #include <stdio.h>
@@ -110,15 +111,11 @@ private:
 public:
 	~OpenMPT() {
 		EDITOR_CHECK;
-		PRINT_MESSAGE("Exiting");
 		if (fill_thread) {
 			if (fill_thread->is_alive()) {
-				PRINT_MESSAGE("Finishing thread");
 				continue_fill_thread = false;
 				fill_thread->wait_to_finish();
-				PRINT_MESSAGE("Thread finished");
 			}
-			PRINT_MESSAGE("Freeing");
 			// fill_thread->free();
 			godot::memdelete(fill_thread);
 			fill_thread = nullptr;
@@ -415,8 +412,8 @@ public:
 	void _fill_thread_func() {
 		while (continue_fill_thread) {
 			_fill_buffer();
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
-		PRINT_MESSAGE("Thread Exiting");
 	}
 
 	void _fill_buffer() {

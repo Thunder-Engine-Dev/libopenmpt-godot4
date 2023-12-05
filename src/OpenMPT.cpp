@@ -3,7 +3,7 @@
 #include "object.hpp"
 #include "property_info.hpp"
 #include "string.hpp"
-#include <libopenmpt/libopenmpt.hpp>
+#include <../../deps/libopenmpt/inc/libopenmpt/libopenmpt.hpp>
 
 void OpenMPT::_bind_methods() {
 	using namespace godot;
