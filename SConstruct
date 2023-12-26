@@ -60,6 +60,8 @@ if env["platform"] == "windows":
             "amd64/libopenmpt"
         ]
     )
+    env.Append(CCFLAGS=['-EHsc'])
+    env.Append(CCFLAGS=['-Wall', '-std=17', '-pedantic'])
 else:
     env.Append(
         LIBS=[

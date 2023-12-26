@@ -7,8 +7,8 @@
 
 void OpenMPT::_bind_methods() {
 	using namespace godot;
-  
-  ClassDB::bind_method(D_METHOD("clear_buffer"), &OpenMPT::clear_buffer);
+	
+	ClassDB::bind_method(D_METHOD("clear_buffer"), &OpenMPT::clear_buffer);
 	ClassDB::bind_method(D_METHOD("set_audio_generator_playback", "audio_stream_player"), &OpenMPT::set_audio_generator_playback);
 	ClassDB::bind_method(D_METHOD("_fill_thread_func"), &OpenMPT::_fill_thread_func);
 	ClassDB::bind_method(D_METHOD("is_module_loaded"), &OpenMPT::is_module_loaded);
@@ -25,8 +25,8 @@ void OpenMPT::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_pattern_num_rows", "pattern"), &OpenMPT::get_pattern_num_rows);
 	ClassDB::bind_method(D_METHOD("get_position_seconds"), &OpenMPT::get_position_seconds);
 	ClassDB::bind_method(D_METHOD("set_position_seconds", "position"), &OpenMPT::set_position_seconds);
-  ClassDB::bind_method(D_METHOD("set_render_interpolation", "index"), &OpenMPT::set_render_interpolation);
-  ClassDB::bind_method(D_METHOD("select_subsong", "index"), &OpenMPT::select_subsong);
+	ClassDB::bind_method(D_METHOD("set_render_interpolation", "index"), &OpenMPT::set_render_interpolation);
+	ClassDB::bind_method(D_METHOD("select_subsong", "index"), &OpenMPT::select_subsong);
 	ClassDB::bind_method(D_METHOD("get_current_estimated_bpm"), &OpenMPT::get_current_estimated_bpm);
 	ClassDB::bind_method(D_METHOD("get_current_speed"), &OpenMPT::get_current_speed);
 	ClassDB::bind_method(D_METHOD("get_current_tempo"), &OpenMPT::get_current_tempo);
@@ -52,24 +52,17 @@ void OpenMPT::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_order_pattern", "order"), &OpenMPT::get_order_pattern);
 	ClassDB::bind_method(D_METHOD("get_metadata", "meta_key"), &OpenMPT::get_metadata);
 	ClassDB::bind_method(D_METHOD("get_metadata_keys"), &OpenMPT::get_metadata_keys);
-	//ClassDB::bind_method(D_METHOD("set_module_file_path", "path"), &OpenMPT::set_module_file_path);
-	//ClassDB::bind_method(D_METHOD("load_module_file", "path"), &OpenMPT::load_module_file);
-	//ClassDB::bind_method(D_METHOD("get_module_file_path"), &OpenMPT::get_module_file_path);
-  ClassDB::bind_method(D_METHOD("load_module_data", "module"), &OpenMPT::load_module_data);
+	ClassDB::bind_method(D_METHOD("load_module_data", "bytes"), &OpenMPT::load_module_data);
 	ClassDB::bind_method(D_METHOD("start", "reset_position"), &OpenMPT::start);
 	ClassDB::bind_method(D_METHOD("stop"), &OpenMPT::stop);
 
-	/*ADD_PROPERTY(
-		PropertyInfo(godot::Variant::STRING, "module_file_path", godot::PROPERTY_HINT_FILE),
-		"set_module_file_path",
-		"get_module_file_path");*/
 }
 
 OpenMPT::OpenMPT() {
 	EDITOR_CHECK;
-	PRINT_MESSAGE("libopenmpt version: core " + get_core_version() + " lib "+ get_library_version());
 }
 
+/*
 void OpenMPT::load_module_data(godot::PackedByteArray bytes) {
 	try {
 		if (module) {
@@ -82,51 +75,17 @@ void OpenMPT::load_module_data(godot::PackedByteArray bytes) {
 		PRINT_ERROR(godot::String("Could not initialize OpenMPT module: ") + e.what());
 	}
 }
+*/
 
-/*
-void OpenMPT::load_module_data() {
-	EDITOR_CHECK;
-
-	if (module_file_path.is_empty()) {
-		return;
-	}
-
-	//PRINT_MESSAGE("Loading: " + module_file_path);
-
-	module_file = godot::FileAccess::open(module_file_path, godot::FileAccess::ModeFlags::READ);
-	module_file->reference();
-
-	if (module_file->get_open_error() != godot::Error::OK) {
-		PRINT_ERROR(godot::String("Could not open '") + module_file_path + "' for reading.");
-		module_file->close();
-		module_file->unreference();
-		return;
-	}
-
-	godot::PackedByteArray bytes = module_file->get_buffer(module_file->get_length());
-
+void OpenMPT::load_module_data(godot::PackedByteArray bytes) {
 	try {
-		if (module) {
-			delete module;
-			module = nullptr;
-		}
-		module = new openmpt::module(bytes.ptr(), bytes.size());
+		EDITOR_CHECK;
+		module = std::make_optional<openmpt::module>(bytes.ptr(), bytes.size());
 		set_repeat_count(-1);
 	} catch (openmpt::exception e) {
 		PRINT_ERROR(godot::String("Could not initialize OpenMPT module: ") + e.what());
-		module_file->close();
-		module_file->unreference();
-		return;
 	}
-
-	PRINT_MESSAGE("Load Finished");
-
-	// Apparently you shouldnt call delete on it and instead call member
-	// funcs for freeing
-	module_file->close();
-	module_file->unreference();
 }
-*/
 
 godot::String OpenMPT::get_cell(int pattern, int row, int channel) {
 	if (!module) {

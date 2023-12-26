@@ -5,9 +5,10 @@
 // lead to annoying situations due to the ton of macros it defines.
 // So we include it and make sure CI warns us if we use something that conflicts
 // with a Windows define.
-#include "../../godot-cpp/include/godot_cpp/core/memory.hpp"
+#include <memory.hpp>
 #ifdef WIN32
 #include <windows.h>
+#define LIBOPENMPT_USE_DLL
 #endif
 
 #include <engine.hpp>
@@ -34,6 +35,8 @@
 //#include <bits/types/__FILE.h>
 #include <../../deps/libopenmpt/inc/libopenmpt/libopenmpt.hpp>
 #include <thread>
+#include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 #include <stdio.h>
@@ -85,10 +88,10 @@ private:
 	godot::String data;
 	godot::Ref<godot::AudioStreamGeneratorPlayback> audgen = nullptr;
 	int sample_rate = 0;
-	openmpt::module *module = nullptr;
-	godot::Ref<godot::FileAccess> module_file = nullptr;
+	std::optional<openmpt::module> module;
+	//openmpt::module *module = nullptr;
+	//godot::Ref<godot::FileAccess> module_file = nullptr;
 	int module_log;
-	godot::String module_file_path;
 
 	// godot_float32 is a float, so it should work as a float buffer for our
 	// purposes
@@ -125,10 +128,11 @@ public:
 			audgen->unreference();
 		}
 
-		if (module) {
-			delete module;
-			module = nullptr;
-		}
+		module.reset();
+		//if (module) {
+		//	delete module;
+		//	module = nullptr;
+		//}
 	}
 
 	OpenMPT();
@@ -156,23 +160,8 @@ public:
 	void load_module_data(godot::PackedByteArray bytes);
 
 	bool is_module_loaded() {
-		return module != nullptr;
+		return module.has_value();
 	}
-
-	/*
-	void set_module_file_path(godot::String path) {
-		module_file_path = path;
-		load_module_data();
-	}
-
-	void load_module_file(godot::String path) {
-		set_module_file_path(path);
-	}
-
-	godot::String get_module_file_path() {
-		return module_file_path;
-	}
-	*/
 
 	godot::String get_cell(int pattern, int row, int channel);
 	godot::String get_current_cell(int channel);
@@ -211,7 +200,7 @@ public:
 		MOD_NULL_CHECK_VOID;
 		module->set_position_seconds(seconds);
 	}
-  
+
 	void set_render_interpolation(int index) {
 		MOD_NULL_CHECK_VOID;
 		module->set_render_param(openmpt::module::render_param::RENDER_INTERPOLATIONFILTER_LENGTH, index);
@@ -412,6 +401,7 @@ public:
 
 		if (!audgen.is_valid()) {
 			PRINT_ERROR("Could not load audio generator (invalid parameter)?");
+			return;
 		}
 
 		godot::Ref<godot::AudioStreamGenerator> stream = a->get_stream();
@@ -419,6 +409,7 @@ public:
 
 		if (!stream.is_valid()) {
 			PRINT_ERROR("Could not load audio stream (invalid parameter)?");
+			return;
 		}
 
 		sample_rate = stream->get_mix_rate();
