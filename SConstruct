@@ -24,7 +24,7 @@ if env["platform"] == "windows":
     #libopenmpt_headers_path = libopenmpt_path + "/inc"
     libopenmpt_lib_path = libopenmpt_path + "/lib"
 else:
-    libopenmpt_path = "deps/libopenmpt/install-files"
+    libopenmpt_path = "deps/libopenmpt"
     #libopenmpt_headers_path = libopenmpt_path + "/include"
     libopenmpt_lib_path = libopenmpt_path + "/lib"
 
@@ -61,7 +61,7 @@ if env["platform"] == "windows":
         ]
     )
     env.Append(CCFLAGS=['-EHsc'])
-    env.Append(CCFLAGS=['-Wall', '-std=17', '-pedantic'])
+    env.Append(CCFLAGS=['-Wall', '-std=17', '-pedantic', '-fexceptions'])
 else:
     env.Append(
         LIBS=[
@@ -70,6 +70,12 @@ else:
             "openmpt", "z", "mpg123", "vorbisfile", "vorbis", "m", "ogg"
         ]
     )
+    env.Append(CCFLAGS=["-fPIC", "-g", "-O3", "-std=c++2b", "-static", "-fexceptions"])
+    env.Append(LINKFLAGS=["-fPIC"])
+
+if env["use_llvm"] == "yes":
+	env["CC"] = "clang"
+	env["CXX"] = "clang++"
 
 #env.Append(CPPPATH=["src/"])
 sources = Glob("src/*.cpp")

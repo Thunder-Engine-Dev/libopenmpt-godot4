@@ -33,7 +33,7 @@
 
 //#include <bits/stdint-intn.h>
 //#include <bits/types/__FILE.h>
-#include <../../deps/libopenmpt/inc/libopenmpt/libopenmpt.hpp>
+#include <../../deps/libopenmpt/libopenmpt.hpp>
 #include <thread>
 #include <memory>
 #include <optional>
@@ -88,8 +88,8 @@ private:
 	godot::String data;
 	godot::Ref<godot::AudioStreamGeneratorPlayback> audgen = nullptr;
 	int sample_rate = 0;
-	std::optional<openmpt::module> module;
-	//openmpt::module *module = nullptr;
+	//std::optional<openmpt::module> module;
+	openmpt::module *module = nullptr;
 	//godot::Ref<godot::FileAccess> module_file = nullptr;
 	int module_log;
 
@@ -128,11 +128,11 @@ public:
 			audgen->unreference();
 		}
 
-		module.reset();
-		//if (module) {
-		//	delete module;
-		//	module = nullptr;
-		//}
+		//module->reset();
+		if (module) {
+			delete module;
+			module = nullptr;
+		}
 	}
 
 	OpenMPT();
@@ -160,7 +160,7 @@ public:
 	void load_module_data(godot::PackedByteArray bytes);
 
 	bool is_module_loaded() {
-		return module.has_value();
+		return module != nullptr;
 	}
 
 	godot::String get_cell(int pattern, int row, int channel);

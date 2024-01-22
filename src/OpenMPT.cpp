@@ -3,7 +3,7 @@
 #include "object.hpp"
 #include "property_info.hpp"
 #include "string.hpp"
-#include <../../deps/libopenmpt/inc/libopenmpt/libopenmpt.hpp>
+#include <../../deps/libopenmpt/libopenmpt.hpp>
 
 void OpenMPT::_bind_methods() {
 	using namespace godot;
@@ -62,7 +62,7 @@ OpenMPT::OpenMPT() {
 	EDITOR_CHECK;
 }
 
-/*
+
 void OpenMPT::load_module_data(godot::PackedByteArray bytes) {
 	try {
 		if (module) {
@@ -75,17 +75,17 @@ void OpenMPT::load_module_data(godot::PackedByteArray bytes) {
 		PRINT_ERROR(godot::String("Could not initialize OpenMPT module: ") + e.what());
 	}
 }
-*/
 
-void OpenMPT::load_module_data(godot::PackedByteArray bytes) {
-	try {
-		EDITOR_CHECK;
-		module = std::make_optional<openmpt::module>(bytes.ptr(), bytes.size());
-		set_repeat_count(-1);
-	} catch (openmpt::exception e) {
-		PRINT_ERROR(godot::String("Could not initialize OpenMPT module: ") + e.what());
-	}
-}
+
+// void OpenMPT::load_module_data(godot::PackedByteArray bytes) {
+// 	try {
+// 		EDITOR_CHECK;
+// 		module = std::make_optional<openmpt::module>(bytes.ptr(), bytes.size());
+// 		set_repeat_count(-1);
+// 	} catch (openmpt::exception e) {
+// 		PRINT_ERROR(godot::String("Could not initialize OpenMPT module: ") + e.what());
+// 	}
+// }
 
 godot::String OpenMPT::get_cell(int pattern, int row, int channel) {
 	if (!module) {
